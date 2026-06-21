@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Neon Vortex | Finger-Tracking Arcade Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+  <div id="app-container">
+    <div id="canvas-stack">
+      <!-- 4 Layered Canvases for max performance -->
+      <canvas id="bg-canvas" width="800" height="600"></canvas>
+      <canvas id="game-canvas" width="800" height="600"></canvas>
+      <canvas id="fx-canvas" width="800" height="600"></canvas>
+      <canvas id="ui-canvas" width="800" height="600"></canvas>
+
+      <!-- Gameplay HUD panel overlay -->
+      <div id="ui-overlay">
+        <div id="hud">
+          <div class="hud-panel glass-panel" style="border-color: rgba(0, 255, 255, 0.25);">
+            SCORE: <span id="score-val">00000</span>
+          </div>
+          <div id="quality-badge">QUALITY: HIGH</div>
+          <div class="hud-panel glass-panel" style="border-color: rgba(255, 0, 60, 0.25);">
+            HEALTH: <span id="health-val">100</span>%
+          </div>
+        </div>
+
+        <div id="stats-monitor">
+          FPS: --<br>
+          JS UTIL: --%<br>
+          CPU PAINT: --ms<br>
+          HEAP: --MB
+        </div>
+
+        <!-- Camera Preview inset window -->
+        <div id="camera-preview-container"></div>
+      </div>
+
+      <!-- Start screen overlay -->
+      <div id="start-screen" class="overlay-screen">
+        <div class="glass-panel interactive" style="text-align: center; max-width: 500px;">
+          <h1>NEON VORTEX</h1>
+          <p>
+            Control the glowing cursor using your <strong>index finger</strong>.<br>
+            Collect green particles, avoid red spikes.<br>
+            <strong>Make a fist</strong> to activate shield.<br>
+            <strong>Pinch</strong> to unleash EMP shockwave.
+          </p>
+          <button id="start-btn" class="btn-neon">Start Game</button>
+          
+          <div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
+            <button id="test-stress-btn" class="btn-neon" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 15px;">Run Stress Test</button>
+            <button id="test-tracking-btn" class="btn-neon" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 15px;">Simulate Tracking Loss</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game over screen overlay -->
+      <div id="gameover-screen" class="overlay-screen">
+        <div class="glass-panel interactive" style="text-align: center;">
+          <h1 class="neon-text-purple">VORTEX COLLAPSE</h1>
+          <p style="margin-bottom: 12px;">SYSTEM TERMINATED</p>
+          <p style="font-size: 1.5rem; font-weight: bold; color: var(--neon-cyan); margin-bottom: 24px;">
+            SCORE: <span id="final-score-val">0</span>
+          </p>
+          <p style="font-size: 0.9rem; margin-bottom: 24px;">
+            HIGH SCORE: <span id="highscore-val">0</span>
+          </p>
+          <button id="restart-btn" class="btn-neon">Reinitialize</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Portrait Viewport alert notice -->
+  <div id="orientation-notice">
+    <div class="glass-panel" style="text-align: center; max-width: 320px;">
+      <h2 style="color: var(--neon-red); margin-bottom: 12px; font-weight: 800;">LANDSCAPE REQUIRED</h2>
+      <p style="margin-bottom: 0;">Please rotate your device to landscape mode to play Neon Vortex.</p>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
