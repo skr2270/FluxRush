@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.1] - 2026-06-27
+
+### Fixed
+- **Shield Timer Decay**: Changed shield decay calculation to scale with the actual frame delta (`dt`) instead of a hardcoded `1/60` decrement, fixing accelerated shield decay on high refresh-rate screens.
+- **Adaptive Smoother Latency Calculation**: Reordered the tracking update sequence inside `InputManager` to calculate `dt` before overwriting the last valid tracking timestamp. This restores correct speed-dependent filtering behavior.
+
 ## [1.0.0] - 2026-06-26
 
 This is the initial release of FluxRush, a production-quality, low-latency, finger-tracking web arcade game.

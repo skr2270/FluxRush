@@ -53,6 +53,7 @@ export class InputManager {
     }
 
     this.handPresent = true;
+    const dt = this.lastValidTrackingTime === 0 ? 0.016 : (now - this.lastValidTrackingTime) / 1000.0;
     this.lastValidTrackingTime = now;
     this.trackingLossDuration = 0;
 
@@ -67,7 +68,6 @@ export class InputManager {
     this.predictor.update(rawScreenX, rawScreenY, now);
 
     // 2. Apply adaptive exponential smoothing to filter high-frequency noise
-    const dt = (now - this.lastValidTrackingTime) / 1000.0;
     this.smoother.filter(rawScreenX, rawScreenY, Math.max(dt, 0.005), this.tempVec);
 
     // 3. Feed the filtered position into the Kalman Filter for velocity-based tracking

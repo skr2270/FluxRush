@@ -484,6 +484,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"flux-rush@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "flux-rush@workspace:."
+  dependencies:
+    "@mediapipe/tasks-vision": "npm:^0.10.8"
+    typescript: "npm:^5.2.2"
+    vite: "npm:^5.0.0"
+  languageName: unknown
+  linkType: soft
+
 "fsevents@npm:~2.3.2, fsevents@npm:~2.3.3":
   version: 2.3.3
   resolution: "fsevents@npm:2.3.3"
@@ -502,16 +512,6 @@ __metadata:
   conditions: os=darwin
   languageName: node
   linkType: hard
-
-"gesture-game@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "gesture-game@workspace:."
-  dependencies:
-    "@mediapipe/tasks-vision": "npm:^0.10.8"
-    typescript: "npm:^5.2.2"
-    vite: "npm:^5.0.0"
-  languageName: unknown
-  linkType: soft
 
 "graceful-fs@npm:^4.2.6":
   version: 4.2.11

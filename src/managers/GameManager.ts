@@ -120,7 +120,7 @@ export class GameManager {
 
     // 2. Gesture checking
     const cursor = this.input.getCursor();
-    this.checkGestures(cursor);
+    this.checkGestures(cursor, dt);
 
     // 3. Spawn collectibles and hazards
     this.spawnSpawners(dt);
@@ -135,7 +135,7 @@ export class GameManager {
     }
   }
 
-  private checkGestures(cursor: Vec2): void {
+  private checkGestures(cursor: Vec2, dt: number): void {
     const now = performance.now();
 
     // 1. Fist Gesture -> Active Shield (3-second duration, 6-second cooldown)
@@ -148,7 +148,7 @@ export class GameManager {
     }
 
     if (this.shieldActive) {
-      this.shieldTimer -= 1/60; // approximate, bounded by timer check
+      this.shieldTimer -= dt;
       if (this.shieldTimer <= 0) {
         this.shieldActive = false;
       }
