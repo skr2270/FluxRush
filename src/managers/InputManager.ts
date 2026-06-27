@@ -18,6 +18,10 @@ export class InputManager {
   private handPresent = false;
   private rawConfidence = 0;
 
+  private controlMode: 'hand' | 'touch' = 'hand';
+  private triggerShieldForce = false;
+  private triggerEMPForce = false;
+
   private screenWidth = 800;
   private screenHeight = 600;
 
@@ -31,6 +35,33 @@ export class InputManager {
   constructor() {
   }
 
+  public setControlMode(mode: 'hand' | 'touch'): void {
+    this.controlMode = mode;
+    if (mode === 'touch') {
+      this.handPresent = false;
+      this.isFist = false;
+      this.isPinching = false;
+      this.triggerShieldForce = false;
+      this.triggerEMPForce = false;
+    }
+  }
+
+  public getControlMode(): 'hand' | 'touch' {
+    return this.controlMode;
+  }
+
+  public triggerTouchShield(): void {
+    if (this.controlMode === 'touch') {
+      this.triggerShieldForce = true;
+    }
+  }
+
+  public triggerTouchEMP(): void {
+    if (this.controlMode === 'touch') {
+      this.triggerEMPForce = true;
+    }
+  }
+
   public resize(width: number, height: number): void {
     this.screenWidth = width;
     this.screenHeight = height;
@@ -40,6 +71,11 @@ export class InputManager {
    * Processes raw hand landmarks received asynchronously from the Web Worker.
    */
   public updateTracking(result: TrackingResult): void {
+    if (this.controlMode === 'touch') {
+      this.handPresent = false;
+      return;
+    }
+
     const now = performance.now();
     this.rawConfidence = result.confidence;
 
@@ -132,10 +168,20 @@ export class InputManager {
   }
 
   public getPinch(): boolean {
+    if (this.controlMode === 'touch') {
+      const val = this.triggerEMPForce;
+      this.triggerEMPForce = false;
+      return val;
+    }
     return this.isPinching;
   }
 
   public getFist(): boolean {
+    if (this.controlMode === 'touch') {
+      const val = this.triggerShieldForce;
+      this.triggerShieldForce = false;
+      return val;
+    }
     return this.isFist;
   }
 

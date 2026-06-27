@@ -25,6 +25,9 @@
           <div class="hud-panel glass-panel" style="border-color: rgba(0, 255, 255, 0.25);">
             SCORE: <span id="score-val">00000</span>
           </div>
+          <div id="control-toggle-hud" class="hud-panel glass-panel interactive" style="cursor: pointer; border-color: rgba(0, 255, 255, 0.25); font-size: 0.9rem;">
+            CONTROL: GESTURE
+          </div>
           <div id="quality-badge">QUALITY: HIGH</div>
           <div class="hud-panel glass-panel" style="border-color: rgba(255, 0, 60, 0.25);">
             HEALTH: <span id="health-val">100</span>%
@@ -40,6 +43,12 @@
 
         <!-- Camera Preview inset window -->
         <div id="camera-preview-container" class="interactive"></div>
+
+        <!-- Touch Actions Panel -->
+        <div id="touch-actions" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); gap: 15px; z-index: 15;">
+          <button id="touch-shield-btn" class="btn-neon interactive" style="font-size: 0.8rem; padding: 8px 18px; border-color: var(--neon-purple); color: var(--neon-purple); border-radius: 20px;">SHIELD</button>
+          <button id="touch-emp-btn" class="btn-neon interactive" style="font-size: 0.8rem; padding: 8px 18px; border-color: var(--neon-cyan); color: var(--neon-cyan); border-radius: 20px;">EMP PULSE</button>
+        </div>
       </div>
 
       <!-- Start screen overlay -->
@@ -52,6 +61,12 @@
             <strong>Make a fist</strong> to activate shield.<br>
             <strong>Pinch</strong> to unleash EMP shockwave.
           </p>
+          
+          <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; align-items: center;">
+            <span style="font-size: 0.9rem; color: var(--text-secondary);">CONTROL:</span>
+            <button id="control-setup-btn" class="btn-neon" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 15px;">GESTURE (CAMERA)</button>
+          </div>
+
           <button id="start-btn" class="btn-neon">Start Game</button>
           
           <div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;">

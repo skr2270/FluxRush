@@ -23,6 +23,13 @@ const startBtn = document.getElementById('start-btn')!;
 const restartBtn = document.getElementById('restart-btn')!;
 const stressBtn = document.getElementById('test-stress-btn')!;
 const trackingBtn = document.getElementById('test-tracking-btn')!;
+const controlSetupBtn = document.getElementById('control-setup-btn')!;
+const controlToggleHud = document.getElementById('control-toggle-hud')!;
+
+// Touch actions for gesture fallbacks
+const touchActions = document.getElementById('touch-actions')!;
+const touchShieldBtn = document.getElementById('touch-shield-btn')!;
+const touchEmpBtn = document.getElementById('touch-emp-btn')!;
 
 // HUD Text elements (cached to avoid redundant updates)
 const scoreText = document.getElementById('score-val')!;
@@ -79,6 +86,27 @@ function fitViewport(): void {
 window.addEventListener('resize', fitViewport);
 fitViewport();
 
+function updateControlMode(mode: 'hand' | 'touch'): void {
+  input.setControlMode(mode);
+  
+  controlToggleHud.textContent = `CONTROL: ${mode === 'hand' ? 'GESTURE' : 'TOUCH'}`;
+  controlSetupBtn.textContent = mode === 'hand' ? 'GESTURE (CAMERA)' : 'TOUCH SCREEN';
+
+  if (mode === 'touch') {
+    cameraPreview.style.display = 'none';
+    tracking.stop();
+    touchActions.style.display = 'flex';
+  } else {
+    cameraPreview.style.display = 'block';
+    touchActions.style.display = 'none';
+    tracking.start().then(() => {
+      if (tracking['video']) {
+        handPreview.setVideo(tracking['video']);
+      }
+    });
+  }
+}
+
 // Start camera stream on startup
 tracking.start().then(() => {
   if (tracking['video']) {
@@ -87,14 +115,37 @@ tracking.start().then(() => {
 });
 
 // UI Event listeners
+controlSetupBtn.addEventListener('click', () => {
+  const currentMode = input.getControlMode();
+  updateControlMode(currentMode === 'hand' ? 'touch' : 'hand');
+});
+
+controlToggleHud.addEventListener('click', () => {
+  const currentMode = input.getControlMode();
+  updateControlMode(currentMode === 'hand' ? 'touch' : 'hand');
+});
+
+touchShieldBtn.addEventListener('click', () => {
+  input.triggerTouchShield();
+});
+
+touchEmpBtn.addEventListener('click', () => {
+  input.triggerTouchEMP();
+});
+
 startBtn.addEventListener('click', () => {
   audio.init();
   startScreen.style.display = 'none';
+  // Ensure the UI matches the current control mode
+  const currentMode = input.getControlMode();
+  updateControlMode(currentMode);
   game.startGame();
 });
 
 restartBtn.addEventListener('click', () => {
   gameoverScreen.style.display = 'none';
+  const currentMode = input.getControlMode();
+  updateControlMode(currentMode);
   game.startGame();
 });
 
