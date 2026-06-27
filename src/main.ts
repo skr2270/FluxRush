@@ -1,6 +1,7 @@
 import { ObjectPoolManager } from './managers/ObjectPoolManager';
 import { InputManager } from './managers/InputManager';
 import { HandTrackingManager } from './managers/HandTrackingManager';
+import { HandPreviewRenderer } from './managers/HandPreviewRenderer';
 import { EffectsManager } from './managers/EffectsManager';
 import { AudioManager } from './managers/AudioManager';
 import { PerformanceMonitor } from './managers/PerformanceMonitor';
@@ -50,9 +51,15 @@ const perf = new PerformanceMonitor((q) => {
 const game = new GameManager(pool, input, audio, effects);
 const test = new TestSuite(pool, input, perf);
 
+// Hand skeleton preview renderer (privacy-safe by default)
+const handPreview = new HandPreviewRenderer(cameraPreview);
+
 // Coordinate tracking manager mapping raw worker data
 const tracking = new HandTrackingManager(
-  (res) => input.updateTracking(res),
+  (res) => {
+    input.updateTracking(res);
+    handPreview.updateLandmarks(res.landmarks, res.handPresent);
+  },
   (state, msg) => {
     console.log(`Tracking state changed to: ${state} (${msg || ''})`);
     if (state === 'ERROR' || state === 'LIGHT_WARN') {
@@ -75,7 +82,7 @@ fitViewport();
 // Start camera stream on startup
 tracking.start().then(() => {
   if (tracking['video']) {
-    cameraPreview.appendChild(tracking['video']);
+    handPreview.setVideo(tracking['video']);
   }
 });
 
@@ -151,6 +158,7 @@ function gameLoop(timestamp: number): void {
   if (bgTimer >= 0.033) {
     bgTimer = 0;
     effects.drawBackground(quality);
+    handPreview.draw();
   }
 
   // Draw entities

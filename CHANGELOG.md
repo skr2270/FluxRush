@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.2] - 2026-06-27
+
+### Added
+- **Privacy-Safe Skeleton Wireframe Preview**: Replaced the raw camera feed in the picture-in-picture preview window with a neon-colored hand skeleton wireframe, hiding the user's face and room background by default.
+- **Preview Toggle Support**: Added an interactive toggle button (`👁` / `🦴`) allowing users to switch between the skeleton view and the raw video feed, with an overlay warning informing them when the camera feed is visible.
+
 ## [1.0.1] - 2026-06-27
 
 ### Fixed
