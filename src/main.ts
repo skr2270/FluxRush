@@ -25,6 +25,7 @@ const stressBtn = document.getElementById('test-stress-btn')!;
 const trackingBtn = document.getElementById('test-tracking-btn')!;
 const controlSetupBtn = document.getElementById('control-setup-btn')!;
 const controlToggleHud = document.getElementById('control-toggle-hud')!;
+const debugActionsContainer = document.getElementById('debug-actions-container')!;
 
 // Touch actions for gesture fallbacks
 const touchActions = document.getElementById('touch-actions')!;
@@ -261,3 +262,37 @@ function updateHUD(): void {
 
 // Boot the loop
 requestAnimationFrame(gameLoop);
+
+// Secret debug activation code sequence ("debug" or Ctrl+Shift+D)
+let debugCodeSequence = '';
+let debugVisible = false;
+
+function toggleDebugMode(): void {
+  debugVisible = !debugVisible;
+  debugActionsContainer.style.display = debugVisible ? 'flex' : 'none';
+  statsMonitor.style.display = debugVisible ? 'block' : 'none';
+}
+
+document.addEventListener('keydown', (e) => {
+  // 1. Check for Ctrl+Shift+D
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'd') {
+    e.preventDefault();
+    toggleDebugMode();
+    return;
+  }
+
+  // 2. Track "debug" character sequence typing
+  const key = e.key.toLowerCase();
+  if ('debug'.indexOf(key) !== -1) {
+    debugCodeSequence += key;
+    if (!'debug'.startsWith(debugCodeSequence)) {
+      debugCodeSequence = key; // reset if diverging
+    }
+    if (debugCodeSequence === 'debug') {
+      toggleDebugMode();
+      debugCodeSequence = '';
+    }
+  } else {
+    debugCodeSequence = '';
+  }
+});

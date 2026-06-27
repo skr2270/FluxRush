@@ -4,6 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FluxRush | Finger-Tracking Arcade Game</title>
+  
+  <!-- SEO & Social Graph Meta Tags -->
+  <meta name="description" content="FluxRush is a high-performance, real-time hand-tracking arcade game. Control a neon energy orb with your index finger, collect particles, and avoid hazards.">
+  <meta name="keywords" content="gesture game, hand tracking, mediapipe, skia react native, arcade game, neon, HTML5 game">
+  <meta property="og:title" content="FluxRush | Finger-Tracking Arcade Game">
+  <meta property="og:description" content="Play FluxRush, a high-octane neon arcade game controlled entirely by your hand tracking. No controller required!">
+  <meta property="og:image" content="/og-preview.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#07070d">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
@@ -34,7 +49,7 @@
           </div>
         </div>
 
-        <div id="stats-monitor">
+        <div id="stats-monitor" style="display: none;">
           FPS: --<br>
           JS UTIL: --%<br>
           CPU PAINT: --ms<br>
@@ -69,7 +84,7 @@
 
           <button id="start-btn" class="btn-neon">Start Game</button>
           
-          <div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
+          <div id="debug-actions-container" style="margin-top: 20px; display: none; justify-content: center; gap: 10px;">
             <button id="test-stress-btn" class="btn-neon" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 15px;">Run Stress Test</button>
             <button id="test-tracking-btn" class="btn-neon" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 15px;">Simulate Tracking Loss</button>
           </div>
