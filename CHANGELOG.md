@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Privacy-Safe Skeleton Wireframe Preview**: Replaced the raw camera feed in the picture-in-picture preview window with a neon-colored hand skeleton wireframe, hiding the user's face and room background by default.
 - **Preview Toggle Support**: Added an interactive toggle button (`👁` / `🦴`) allowing users to switch between the skeleton view and the raw video feed, with an overlay warning informing them when the camera feed is visible.
+- **Dynamic Control Mode Selector**: Added settings controls to switch between "Hand Gestures" (Camera-based) and "Touch Screen" (Mouse/Swipe-based) at any time. When "Touch Screen" is chosen, the camera stream shuts down completely to conserve power.
+- **Virtual Gesture Buttons**: Rendered HUD action buttons for Shield and EMP Shockwave when in touch mode.
 
 ## [1.0.1] - 2026-06-27
 
