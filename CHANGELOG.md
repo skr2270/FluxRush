@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Shield Timer Decay**: Changed shield decay calculation to scale with the actual frame delta (`dt`) instead of a hardcoded `1/60` decrement, fixing accelerated shield decay on high refresh-rate screens.
 - **Adaptive Smoother Latency Calculation**: Reordered the tracking update sequence inside `InputManager` to calculate `dt` before overwriting the last valid tracking timestamp. This restores correct speed-dependent filtering behavior.
+- **Hand Gesture Tracking**: Removed the problematic handedness classification confidence filter (`confidenceThreshold`) in `InputManager` that previously discarded valid hand tracking when left-vs-right hand identification was ambiguous.
 
 ## [1.0.0] - 2026-06-26
 
