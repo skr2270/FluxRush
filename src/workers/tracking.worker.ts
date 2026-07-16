@@ -13,6 +13,18 @@ async function initHandTracking() {
       'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/wasm'
     );
 
+    // Bypassing Emscripten module-scoping limitations in ESM Workers (ModuleFactory not set)
+    if (vision.wasmLoaderPath) {
+      const response = await fetch(vision.wasmLoaderPath);
+      const scriptContent = await response.text();
+      // Execute the loader script in the worker global scope
+      (self as any).ModuleFactory = undefined; // reset
+      eval?.(scriptContent);
+      
+      // Prevent tasks-vision from attempting to re-fetch/re-execute the loader
+      delete (vision as any).wasmLoaderPath;
+    }
+
     // Create HandLandmarker with GPU delegate and single hand tracking limit
     handLandmarker = await HandLandmarker.createFromOptions(vision, {
       baseOptions: {
