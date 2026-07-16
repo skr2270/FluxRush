@@ -294,7 +294,9 @@ function gameLoop(timestamp: number): void {
   updateHUD();
 
   // 4. Performance recording
-  perf.recordFrame(dt * 1000, jsTime, paintTime);
+  if (game.getGameState() === 'PLAYING') {
+    perf.recordFrame(dt * 1000, jsTime, paintTime);
+  }
 }
 
 function updateHUD(): void {

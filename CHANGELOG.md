@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Social graph preview image**: Generated and added `public/og-preview.png` for social sharing previews.
 
 ### Fixed
+- **Hand tracking coordinates drift during tracking loss**: Added a Kalman filter state reset during tracking loss deceleration (when hand is out of frame for >150ms), preventing the cursor from jumping/sliding when the hand returns.
+- **Premature quality degradation**: Restricted performance frame budget recording to only run when the game state is `PLAYING`, preventing temporary WebAssembly compilation/WebGL startup spikes in the menu from permanently downgrading quality.
+- **willReadFrequently canvas warning**: Added `willReadFrequently: true` to the ambient light canvas context inside `HandTrackingManager.ts`, resolving readback lags.
 - **Web Worker MediaPipe initialization crash**: Solved the Emscripten "ModuleFactory not set" error inside the module-scoped Web Worker by fetching and evaluating the WASM loader glue script within the worker's global scope.
 - **Touch/pointer coordinates tracking drift**: Prevented Kalman prediction/velocity extrapolation during touch control mode to stop cursor drifting during idle frames.
 - **Canvas upscaling resolution blurriness**: Resized canvas backing dimensions dynamically inside `fitViewport()` to match actual screen client bounds, fixing upscale stretching.

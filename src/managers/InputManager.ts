@@ -147,6 +147,9 @@ export class InputManager {
         const velocity = this.predictor.getVelocity();
         velocity.x *= 0.90;
         velocity.y *= 0.90;
+
+        // Prevent Kalman filter from drifting infinitely while hand is out of frame
+        this.kalman.reset(this.cursor.x, this.cursor.y);
       }
     }
 

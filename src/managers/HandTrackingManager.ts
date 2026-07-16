@@ -50,7 +50,7 @@ export class HandTrackingManager {
     this.offscreenCtx = this.offscreenCanvas.getContext('2d', { alpha: false, desynchronized: true });
 
     this.lightCanvas = new OffscreenCanvas(16, 16);
-    this.lightCtx = this.lightCanvas.getContext('2d', { alpha: false });
+    this.lightCtx = this.lightCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
   }
 
   private startResolver: (() => void) | null = null;
