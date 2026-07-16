@@ -40,7 +40,22 @@
           <div class="hud-panel glass-panel" style="border-color: rgba(0, 255, 255, 0.25);">
             SCORE: <span id="score-val">00000</span>
           </div>
-          <div id="control-toggle-hud" class="hud-panel glass-panel interactive" style="cursor: pointer; border-color: rgba(0, 255, 255, 0.25); font-size: 0.9rem;">
+          <div class="hud-panel glass-panel" style="border-color: rgba(0, 255, 255, 0.25);">
+            LEVEL: <span id="level-val">1</span>
+          </div>
+          <div id="combo-container" class="hud-panel glass-panel" style="border-color: rgba(57, 255, 20, 0.25); min-width: 90px; text-align: center;">
+            COMBO: x<span id="combo-mult">1</span>
+            <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; margin-top: 4px; overflow: hidden;">
+              <div id="combo-bar-fill" style="width: 0%; height: 100%; background: var(--neon-green); transition: width 0.1s linear;"></div>
+            </div>
+          </div>
+          <div id="shield-container" class="hud-panel glass-panel" style="border-color: rgba(189, 0, 255, 0.25); min-width: 90px; text-align: center;">
+            SHIELD: <span id="shield-status">READY</span>
+            <div style="width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; margin-top: 4px; overflow: hidden;">
+              <div id="shield-bar-fill" style="width: 0%; height: 100%; background: var(--neon-purple); transition: width 0.1s linear;"></div>
+            </div>
+          </div>
+          <div id="control-toggle-hud" class="hud-panel glass-panel interactive" role="button" aria-label="Toggle input mode between Gesture and Touch" style="cursor: pointer; border-color: rgba(0, 255, 255, 0.25); font-size: 0.9rem;">
             CONTROL: GESTURE
           </div>
           <div id="ai-status-badge" class="hud-panel glass-panel" style="border-color: rgba(0, 255, 255, 0.25); font-size: 0.9rem; color: var(--text-secondary);">
@@ -51,24 +66,24 @@
             HEALTH: <span id="health-val">100</span>%
           </div>
         </div>
-
+ 
         <div id="stats-monitor" style="display: none;">
           FPS: --<br>
           JS UTIL: --%<br>
           CPU PAINT: --ms<br>
           HEAP: --MB
         </div>
-
+ 
         <!-- Camera Preview inset window -->
         <div id="camera-preview-container" class="interactive"></div>
-
+ 
         <!-- Touch Actions Panel -->
         <div id="touch-actions" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); gap: 15px; z-index: 15;">
-          <button id="touch-shield-btn" class="btn-neon interactive" style="font-size: 0.8rem; padding: 8px 18px; border-color: var(--neon-purple); color: var(--neon-purple); border-radius: 20px;">SHIELD</button>
-          <button id="touch-emp-btn" class="btn-neon interactive" style="font-size: 0.8rem; padding: 8px 18px; border-color: var(--neon-cyan); color: var(--neon-cyan); border-radius: 20px;">EMP PULSE</button>
+          <button id="touch-shield-btn" class="btn-neon interactive" aria-label="Activate Shield" style="font-size: 0.8rem; padding: 8px 18px; border-color: var(--neon-purple); color: var(--neon-purple); border-radius: 20px;">SHIELD</button>
+          <button id="touch-emp-btn" class="btn-neon interactive" aria-label="Activate EMP pulse" style="font-size: 0.8rem; padding: 8px 18px; border-color: var(--neon-cyan); color: var(--neon-cyan); border-radius: 20px;">EMP PULSE</button>
         </div>
       </div>
-
+ 
       <!-- Hand missing alert overlay -->
       <div id="hand-missing-prompt" class="overlay-screen" style="display: none; pointer-events: none; z-index: 5;">
         <div class="glass-panel" style="background: rgba(15, 15, 30, 0.5); border-color: var(--neon-cyan); padding: 12px 24px; pointer-events: none;">
@@ -76,6 +91,57 @@
         </div>
       </div>
 
+      <!-- Tutorial screen overlay -->
+      <div id="tutorial-screen" class="overlay-screen" style="display: none; z-index: 30; background: rgba(7, 7, 13, 0.95);">
+        <div class="glass-panel interactive" style="text-align: center; max-width: 500px;">
+          <h2 style="color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); margin-bottom: 20px; font-weight: 800; font-size: 2rem;">SYSTEM OVERVIEW</h2>
+          <div style="display: flex; flex-direction: column; gap: 20px; text-align: left; margin-bottom: 30px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <div style="font-size: 2rem;">☝️</div>
+              <div>
+                <strong style="color: #fff; font-size: 1.1rem;">INDEX FINGER: Move Cursor</strong>
+                <p style="margin: 0; font-size: 0.85rem; text-align: left; color: var(--text-secondary);">Point at the screen to control the neon orb. Collect green energy particles.</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <div style="font-size: 2rem;">✊</div>
+              <div>
+                <strong style="color: #fff; font-size: 1.1rem;">FIST GESTURE: Shield</strong>
+                <p style="margin: 0; font-size: 0.85rem; text-align: left; color: var(--text-secondary);">Close your hand into a fist to activate a purple shield (deflects hazards).</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <div style="font-size: 2rem;">👌</div>
+              <div>
+                <strong style="color: #fff; font-size: 1.1rem;">PINCH GESTURE: EMP Pulse</strong>
+                <p style="margin: 0; font-size: 0.85rem; text-align: left; color: var(--text-secondary);">Pinch your thumb and index finger to release an EMP wave (costs 5 combo).</p>
+              </div>
+            </div>
+          </div>
+          <button id="tutorial-close-btn" class="btn-neon" aria-label="Close tutorial and initialize system">Initialize System</button>
+        </div>
+      </div>
+
+      <!-- Pause screen overlay -->
+      <div id="pause-screen" class="overlay-screen" style="display: none; z-index: 25; background: rgba(7, 7, 13, 0.85);">
+        <div class="glass-panel interactive" style="text-align: center; min-width: 320px;">
+          <h1>PAUSED</h1>
+          <p style="margin-bottom: 20px;">SYSTEM SUSPENDED</p>
+          <button id="resume-btn" class="btn-neon" aria-label="Resume playing" style="margin-bottom: 20px; width: 100%;">Resume Game</button>
+          
+          <div style="margin: 15px 0; display: flex; flex-direction: column; gap: 8px; align-items: center; border-top: 1px solid var(--panel-border); padding-top: 15px;">
+            <label style="font-size: 0.9rem; color: var(--text-secondary); font-weight: bold;">VOLUME: <span id="volume-val">30</span>%</label>
+            <input id="volume-slider" type="range" min="0" max="100" value="30" class="interactive" aria-label="Volume slider" style="width: 80%; cursor: pointer;">
+            <button id="mute-btn" class="btn-neon interactive" aria-label="Toggle mute" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 15px; margin-top: 5px;">Mute Audio</button>
+          </div>
+
+          <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; border-top: 1px solid var(--panel-border); padding-top: 15px;">
+            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: bold;">COLORBLIND MODE:</span>
+            <button id="colorblind-btn" class="btn-neon interactive" aria-label="Toggle Colorblind Mode" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 15px;">OFF</button>
+          </div>
+        </div>
+      </div>
+ 
       <!-- Start screen overlay -->
       <div id="start-screen" class="overlay-screen">
         <div class="glass-panel interactive" style="text-align: center; max-width: 500px;">
@@ -89,18 +155,29 @@
           
           <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; align-items: center;">
             <span style="font-size: 0.9rem; color: var(--text-secondary);">CONTROL:</span>
-            <button id="control-setup-btn" class="btn-neon" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 15px;">GESTURE (CAMERA)</button>
+            <button id="control-setup-btn" class="btn-neon" aria-label="Toggle start control mode" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 15px;">GESTURE (CAMERA)</button>
           </div>
 
-          <button id="start-btn" class="btn-neon">Start Game</button>
+          <div style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+            <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+              <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: bold;">VOLUME:</span>
+              <input id="start-volume-slider" type="range" min="0" max="100" value="30" class="interactive" aria-label="Start screen volume slider" style="width: 120px; cursor: pointer;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+              <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: bold;">COLORBLIND MODE:</span>
+              <button id="start-colorblind-btn" class="btn-neon interactive" aria-label="Toggle start screen colorblind mode" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 15px;">OFF</button>
+            </div>
+          </div>
+ 
+          <button id="start-btn" class="btn-neon" aria-label="Start game">Start Game</button>
           
           <div id="debug-actions-container" style="margin-top: 20px; display: none; justify-content: center; gap: 10px;">
-            <button id="test-stress-btn" class="btn-neon" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 15px;">Run Stress Test</button>
-            <button id="test-tracking-btn" class="btn-neon" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 15px;">Simulate Tracking Loss</button>
+            <button id="test-stress-btn" class="btn-neon" aria-label="Run stress test" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 15px;">Run Stress Test</button>
+            <button id="test-tracking-btn" class="btn-neon" aria-label="Simulate tracking loss" style="font-size: 0.75rem; padding: 6px 14px; border-radius: 15px;">Simulate Tracking Loss</button>
           </div>
         </div>
       </div>
-
+ 
       <!-- Game over screen overlay -->
       <div id="gameover-screen" class="overlay-screen">
         <div class="glass-panel interactive" style="text-align: center;">
@@ -109,10 +186,14 @@
           <p style="font-size: 1.5rem; font-weight: bold; color: var(--neon-cyan); margin-bottom: 24px;">
             SCORE: <span id="final-score-val">0</span>
           </p>
-          <p style="font-size: 0.9rem; margin-bottom: 24px;">
+          <p style="font-size: 0.9rem; margin-bottom: 20px;">
             HIGH SCORE: <span id="highscore-val">0</span>
           </p>
-          <button id="restart-btn" class="btn-neon">Reinitialize</button>
+          
+          <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 25px;">
+            <button id="restart-btn" class="btn-neon" aria-label="Restart game">Reinitialize</button>
+            <button id="share-btn" class="btn-neon interactive" aria-label="Share score">Share Score</button>
+          </div>
         </div>
       </div>
     </div>

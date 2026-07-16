@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.4] - 2026-07-17
+
+### Added
+- **HUD Level, Combo & Shield Progress Indicators**: Integrated Level count display, animated combo time decay bar, and shield duration/cooldown progress bars to make core systems visible.
+- **Synthesizer SFX Upgrades**: Programmed customized synthesizers for Shield activation (rising sweep), Shield expiry (falling tone), and EMP blast (filtered noise explosion).
+- **Audio Control System**: Added volume slider and mute controls to start/pause overlays.
+- **Edge Warning Approaching Indicators**: Rendered off-screen warning arrows pointing toward hazards approaching the playable canvas area.
+- **Colorblind-Safe Mode**: Created high-contrast blue/orange color swaps and shape distinctions ("+" and "X" overlays) for deuteranopia/protanopia compatibility.
+- **Vertical Keyboard Controls**: Added vertical axis movement to keyboard fallback controls (ArrowUp/Down, W/S).
+- **Pause & Resume Menu**: Added ESC/P key hooks and modal overlays to suspend play, freeze ticks, and mute ambient drones.
+- **Social Graph Share API**: Integrated Web Share API with clipboard fallback on gameover screen.
+
+### Fixed
+- **Touch Screen Coordinates Offset**: Scaled coordinates dynamically based on canvas client bounding box instead of hardcoded 800x600 layout space.
+- **First Frame Delta Spike**: Guarded loop ticks from initial execution delays by resetting the baseline frame timer on loop startup.
+- **Graphics Engine Context Recovery**: Added canvas contextlost and webglcontextlost event listeners to gracefully pause and reset context state.
+
 ## [1.0.3] - 2026-07-16
 
 ### Added

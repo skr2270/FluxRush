@@ -46,6 +46,7 @@ export class GameManager {
   private shieldActive = false;
   private shieldTimer = 0;
   private lastShieldActivation = 0;
+  private invincibilityTimer = 0;
 
   // Spawning intervals (seconds)
   private collectibleTimer = 0;
@@ -102,6 +103,7 @@ export class GameManager {
     this.lastDifficultyInc = 0;
     this.shieldActive = false;
     this.shieldTimer = 0;
+    this.invincibilityTimer = 0;
     this.collectibleTimer = 0;
     this.hazardTimer = 0;
 
@@ -131,6 +133,7 @@ export class GameManager {
 
     this.gameTime += dt;
     this.comboTimer = Math.max(0, this.comboTimer - dt);
+    this.invincibilityTimer = Math.max(0, this.invincibilityTimer - dt);
 
     // 1. Difficulty Scaling (every 15 seconds increase level)
     if (this.gameTime - this.lastDifficultyInc > 15) {
@@ -165,7 +168,7 @@ export class GameManager {
       this.shieldActive = true;
       this.shieldTimer = 3.0; // 3 seconds
       this.lastShieldActivation = now;
-      this.audio.playCombo(10);
+      this.audio.playShieldActivate();
       this.pool.spawnFloatingText(cursor.x, cursor.y - 40, 'SHIELD ACTIVE', '#bd00ff', 18);
     }
 
@@ -173,6 +176,7 @@ export class GameManager {
       this.shieldTimer -= dt;
       if (this.shieldTimer <= 0) {
         this.shieldActive = false;
+        this.audio.playShieldExpire();
       }
     }
 
@@ -180,7 +184,7 @@ export class GameManager {
     if (this.input.getPinch() && this.combo >= 5) {
       this.combo -= 5;
       this.comboMultiplier = Math.max(1, Math.floor(this.combo / 5) + 1);
-      this.audio.playHit();
+      this.audio.playEmpPulse();
       this.effects.triggerShake(300, 8);
 
       // Spawn visual expansion wave ring
@@ -408,12 +412,17 @@ export class GameManager {
             this.audio.playCollect();
             this.effects.triggerShake(150, 4);
             this.pool.spawnFloatingText(h.pos.x, h.pos.y, 'BLOCKED', '#bd00ff');
+          } else if (this.invincibilityTimer > 0) {
+            // Invincible: do not take damage, just spark
+            this.spawnExplosion(h.pos.x, h.pos.y, '#ff003c', 6);
+            this.pool.spawnFloatingText(h.pos.x, h.pos.y, 'EVADED', '#8c8ca3');
           } else {
             // Player hit by obstacle
             this.health = Math.max(0, this.health - 25);
             this.combo = 0;
             this.comboMultiplier = 1;
             this.comboTimer = 0;
+            this.invincibilityTimer = 0.5; // 500ms grace period
 
             this.audio.playHit();
             this.effects.triggerShake(400, 16);
@@ -455,6 +464,22 @@ export class GameManager {
   public getShieldTimerRatio(): number {
     return !this.shieldActive ? 0 : this.shieldTimer / 4.0;
   }
+  public getShieldCooldownRatio(): number {
+    const now = performance.now();
+    const elapsed = now - this.lastShieldActivation;
+    if (this.shieldActive) return 1.0;
+    if (elapsed > 6000) return 0;
+    return (6000 - elapsed) / 6000;
+  }
+  public getShieldStatusText(): string {
+    if (this.shieldActive) return 'ACTIVE';
+    const now = performance.now();
+    const elapsed = now - this.lastShieldActivation;
+    if (elapsed > 6000) return 'READY';
+    const remainingSecs = Math.ceil((6000 - elapsed) / 1000);
+    return `${remainingSecs}s`;
+  }
+  public getInvincibilityTimer(): number { return this.invincibilityTimer; }
   public isShieldActive(): boolean { return this.shieldActive; }
   public getGameState(): GameState { return this.state; }
 }

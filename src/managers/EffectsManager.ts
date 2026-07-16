@@ -21,6 +21,12 @@ export class EffectsManager {
   private hazardGlow: HTMLCanvasElement;
   private shieldGlow: HTMLCanvasElement;
 
+  // Colorblind templates
+  private energyGlowCB: HTMLCanvasElement;
+  private hazardGlowCB: HTMLCanvasElement;
+
+  private colorblindMode = false;
+
   // Spring Grid Warp state
   private gridNodes: GridNode[] = [];
   private gridCols = 24;
@@ -53,7 +59,19 @@ export class EffectsManager {
     this.hazardGlow = this.createGlowSprite(24, '#ff003c', 20);
     this.shieldGlow = this.createGlowSprite(40, '#bd00ff', 30);
 
+    // Colorblind-specific templates
+    this.energyGlowCB = this.createGlowSprite(18, '#56b4e9', 15); // sky blue
+    this.hazardGlowCB = this.createGlowSprite(24, '#e69f00', 20); // orange
+
     this.resize(bgCanvas.width, bgCanvas.height);
+  }
+
+  public setColorblindMode(enabled: boolean): void {
+    this.colorblindMode = enabled;
+  }
+
+  public getColorblindMode(): boolean {
+    return this.colorblindMode;
   }
 
   public resize(w: number, h: number): void {
@@ -275,12 +293,25 @@ export class EffectsManager {
 
       if (quality !== 'LOW') {
         const offset = c.size + 15;
-        this.gameCtx.drawImage(this.energyGlow, c.pos.x - offset, c.pos.y - offset, offset * 2, offset * 2);
+        const sprite = this.colorblindMode ? this.energyGlowCB : this.energyGlow;
+        this.gameCtx.drawImage(sprite, c.pos.x - offset, c.pos.y - offset, offset * 2, offset * 2);
       } else {
-        this.gameCtx.fillStyle = '#39ff14';
+        this.gameCtx.fillStyle = this.colorblindMode ? '#56b4e9' : '#39ff14';
         this.gameCtx.beginPath();
         this.gameCtx.arc(c.pos.x, c.pos.y, c.size, 0, Math.PI * 2);
         this.gameCtx.fill();
+      }
+
+      // If colorblind mode is ON, draw a "+" symbol in the center of the collectible to make it shape-distinct!
+      if (this.colorblindMode) {
+        this.gameCtx.strokeStyle = '#ffffff';
+        this.gameCtx.lineWidth = 2.5;
+        this.gameCtx.beginPath();
+        this.gameCtx.moveTo(c.pos.x - 4, c.pos.y);
+        this.gameCtx.lineTo(c.pos.x + 4, c.pos.y);
+        this.gameCtx.moveTo(c.pos.x, c.pos.y - 4);
+        this.gameCtx.lineTo(c.pos.x, c.pos.y + 4);
+        this.gameCtx.stroke();
       }
     }
   }
@@ -300,12 +331,12 @@ export class EffectsManager {
 
       if (quality !== 'LOW') {
         const offset = h.size + 20;
-        // Draw the cached circular glow under the hazard first
-        this.gameCtx.drawImage(this.hazardGlow, -offset, -offset, offset * 2, offset * 2);
+        const sprite = this.colorblindMode ? this.hazardGlowCB : this.hazardGlow;
+        this.gameCtx.drawImage(sprite, -offset, -offset, offset * 2, offset * 2);
       }
 
       // Draw the triangular spike structure on top
-      this.gameCtx.strokeStyle = '#ff003c';
+      this.gameCtx.strokeStyle = this.colorblindMode ? '#e69f00' : '#ff003c';
       this.gameCtx.lineWidth = 3;
       this.gameCtx.fillStyle = '#0a0a14';
       this.gameCtx.beginPath();
@@ -318,6 +349,18 @@ export class EffectsManager {
       this.gameCtx.closePath();
       this.gameCtx.fill();
       this.gameCtx.stroke();
+
+      // If colorblind mode is ON, draw an "X" in the center to make it shape-distinct!
+      if (this.colorblindMode) {
+        this.gameCtx.strokeStyle = '#ffffff';
+        this.gameCtx.lineWidth = 2.5;
+        this.gameCtx.beginPath();
+        this.gameCtx.moveTo(-3, -3);
+        this.gameCtx.lineTo(3, 3);
+        this.gameCtx.moveTo(3, -3);
+        this.gameCtx.lineTo(-3, 3);
+        this.gameCtx.stroke();
+      }
 
       this.gameCtx.restore();
     }
@@ -332,13 +375,73 @@ export class EffectsManager {
       const p = particles[i];
       if (!p.active) continue;
 
-      this.fxCtx.fillStyle = p.color;
+      let color = p.color;
+      if (this.colorblindMode) {
+        if (p.color === '#39ff14') color = '#56b4e9';
+        else if (p.color === '#ff003c') color = '#e69f00';
+      }
+
+      this.fxCtx.fillStyle = color;
       this.fxCtx.globalAlpha = p.alpha;
       this.fxCtx.beginPath();
       this.fxCtx.arc(p.pos.x, p.pos.y, p.size, 0, Math.PI * 2);
       this.fxCtx.fill();
     }
     this.fxCtx.globalAlpha = 1.0;
+  }
+
+  /**
+   * Draws indicator arrows on the edge of the viewport for off-screen hazards approaching the bounds.
+   */
+  public drawEdgeWarnings(hazards: GameHazard[]): void {
+    const margin = 25; // Arrow distance from edge
+    this.gameCtx.save();
+    
+    for (let i = 0; i < hazards.length; i++) {
+      const h = hazards[i];
+      if (!h.active) continue;
+
+      // Check if hazard is outside viewport bounds
+      const isOffLeft = h.pos.x < 0;
+      const isOffRight = h.pos.x > this.width;
+      const isOffTop = h.pos.y < 0;
+      const isOffBottom = h.pos.y > this.height;
+
+      if (isOffLeft || isOffRight || isOffTop || isOffBottom) {
+        // Clamp indicators to edge boundary
+        let cx = Math.max(margin, Math.min(h.pos.x, this.width - margin));
+        let cy = Math.max(margin, Math.min(h.pos.y, this.height - margin));
+
+        // Pulsing warning color
+        this.gameCtx.strokeStyle = this.colorblindMode ? '#e69f00' : '#ff003c';
+        this.gameCtx.fillStyle = this.colorblindMode ? 'rgba(230, 159, 0, 0.2)' : 'rgba(255, 0, 60, 0.2)';
+        this.gameCtx.lineWidth = 2;
+        this.gameCtx.shadowColor = this.gameCtx.strokeStyle;
+        this.gameCtx.shadowBlur = 8;
+
+        this.gameCtx.beginPath();
+        this.gameCtx.arc(cx, cy, 10, 0, Math.PI * 2);
+        this.gameCtx.fill();
+        this.gameCtx.stroke();
+
+        // Draw simple pointing arrow toward the hazard's actual location
+        const angle = Math.atan2(h.pos.y - cy, h.pos.x - cx);
+        this.gameCtx.save();
+        this.gameCtx.translate(cx, cy);
+        this.gameCtx.rotate(angle);
+        this.gameCtx.beginPath();
+        this.gameCtx.moveTo(4, 0);
+        this.gameCtx.lineTo(-6, -5);
+        this.gameCtx.lineTo(-3, 0);
+        this.gameCtx.lineTo(-6, 5);
+        this.gameCtx.closePath();
+        this.gameCtx.fillStyle = this.gameCtx.strokeStyle;
+        this.gameCtx.fill();
+        this.gameCtx.restore();
+      }
+    }
+    
+    this.gameCtx.restore();
   }
 
   /**

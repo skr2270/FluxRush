@@ -11,12 +11,16 @@ Built with **Vite, TypeScript, and MediaPipe Hand Landmarker**, FluxRush feature
 *   **Decoupled Dual-Loop Threading**: Hand landmark inference runs inside a background Web Worker (typically at 20-30 FPS) while the main thread renders gameplay at 60-120 FPS. Gaps between tracking updates are filled in real-time by a **Velocity Predictor** using dead-reckoning extrapolation.
 *   **Adaptive Smoothing (1Euro Filter)**: Decoupled velocity-based exponential smoothing. Aggressively filters sub-pixel tremors when stationary, but decreases smoothing (lowers lag) during rapid movement.
 *   **Interactive Hand Gestures**:
-    *   ✊ **Fist**: Activates a protective electromagnetic shield for 3 seconds (6-second cooldown).
+    *   ✊ **Fist**: Activates a protective electromagnetic shield for 3 seconds (6-second cooldown). The HUD tracks shield duration and cooldown seconds dynamically.
     *   👌 **Pinch**: Costs 5 combo points to emit a radial **EMP Shockwave**, instantly clearing all hazards on screen.
+*   **Edge Warning Approaching Indicators**: Displays warning arrows on the borders of the viewport when hazards are off-screen but traveling toward the playable bounds, providing players time to react.
+*   **Colorblind-Safe Mode**: Supports shape overlays (e.g. "+" for energy, "X" for hazards) and alternative high-contrast blue/orange palettes for deuteranopia/protanopia colorblind compatibility.
+*   **Integrated Pause & Resume Menu**: Allows users to suspend active play (Escape/P keys), muting sound synthesis loops and pausing gameplay logic calculations instantly.
+*   **Web Share Integration**: Enables native score sharing directly on the game over screen via the Web Share API.
 *   **Layered Canvas Renderer**: Graphics are split across 4 CSS-layered canvases (`Background`, `Gameplay`, `Effects`, and `UI`) to reduce redraw overhead.
 *   **Double-Buffered Glow Cache**: To avoid expensive CPU Gaussian blurs (`shadowBlur`) during gameplay, neon glows are pre-rendered into circular templates on offscreen canvases and painted via hardware-accelerated `drawImage` calls.
 *   **Spatial Partitioning**: Divided the screen into grid buckets using `SpatialHash.ts` to reduce collision detection from $O(N \cdot M)$ to $O(1)$ operations on average.
-*   **Procedural WebAudio Synthesis**: Zero static sound assets. Low-latency synth tones, coin pick-up bells, combo risers, hazard explosions, and background sci-fi drones are synthesized dynamically using the WebAudio API.
+*   **Procedural WebAudio Synthesis**: Zero static sound assets. Low-latency synth tones, coin pick-up bells, combo risers, hazard explosions, rising shield activate sweeps, shield expiry hums, EMP pulses, and detuned sci-fi ambient pad music are synthesized dynamically using the WebAudio API.
 *   **Adaptive Quality Scaling**: A performance watchdog continuously monitors FPS and Javascript frame budget utilization. If FPS drops below 55 for 3 seconds, it degrades quality (High -> Medium -> Low), reducing particle counts and disabling the spring warp background grid.
 
 ---
@@ -24,13 +28,14 @@ Built with **Vite, TypeScript, and MediaPipe Hand Landmarker**, FluxRush feature
 ## 🎮 How to Play
 
 1.  Open the game and authorize camera access. (Make sure your environment is well-lit!).
-2.  If camera access is denied, **fallback touch/pointer controls** and **keyboard controls (Left/Right Arrow keys or A/D keys)** are automatically initialized.
+2.  If camera access is denied, **fallback touch/pointer controls** and **keyboard controls (Left/Right/Up/Down Arrow keys or A/D/W/S keys)** are automatically initialized.
 3.  Position your hand in front of the camera. The glowing cyan orb will lock onto your index fingertip.
 4.  **Objective**:
-    *   Touch green particles to collect them, increasing your score and combo multiplier.
-    *   Avoid colliding with red rotating hazard triangles.
+    *   Touch green particles to collect them, increasing your score, level progression, and combo multiplier.
+    *   Avoid colliding with red rotating hazard triangles. You have a **500ms invincibility grace period** after taking hit damage to prevent instant multi-impact deaths.
     *   Make a **fist** to load your shield.
     *   **Pinch** your index finger and thumb together to blow up all hazards nearby (requires at least 5 combo points).
+    *   Press **Escape** or **P** at any time to pause/resume the game. Adjust volume levels or toggle colorblind mode directly from the pause screen.
 
 ---
 

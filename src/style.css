@@ -178,14 +178,16 @@ p {
   right: 15px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 6px;
   pointer-events: none;
-  font-family: monospace;
+  font-family: 'Outfit', monospace;
 }
 
 .hud-panel {
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 6px;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: bold;
 }
 
