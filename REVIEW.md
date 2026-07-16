@@ -10,4 +10,5 @@ All release-blocking issues, user experience gaps, and specifications have been 
 - **Show Your Hand Screen Prompt:** Resolved. Prompt triggers overlay when tracking is lost or inactive in GESTURE mode.
 - **Canvas Backing Resolution & Sizing:** Resolved. All canvas backing buffers are dynamically resized to match client coordinates on HiDPI/mobile screen bounds.
 - **Social Graph og:image Assets:** Resolved. A premium cyberpunk tech preview image has been generated and saved to `public/og-preview.png`.
-- **MediaPipe CDN Dependecies:** Handled. Graceful touch fallback covers offline starts.
+- **MediaPipe CDN Dependencies:** Handled. Graceful touch fallback covers offline starts.
+- **Touch / Pointer Coordinate Jitter & Drift:** Resolved. Added early returns in `InputManager.ts` to prevent Kalman filter velocity prediction during touch mode, resolving stationary drift.
