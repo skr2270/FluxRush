@@ -117,6 +117,14 @@ export class InputManager {
     const now = performance.now();
     this.kalman.predict(dt);
 
+    if (this.controlMode === 'touch') {
+      // In touch/keyboard fallback mode, do not apply Kalman prediction drift during idle frames.
+      // The cursor should stay exactly where the pointer or keyboard set it.
+      this.cursor.x = Math.max(0, Math.min(this.cursor.x, this.screenWidth));
+      this.cursor.y = Math.max(0, Math.min(this.cursor.y, this.screenHeight));
+      return;
+    }
+
     if (this.handPresent) {
       // Direct reading from Kalman filter
       const pos = this.kalman.getPosition();

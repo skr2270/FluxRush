@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Social graph preview image**: Generated and added `public/og-preview.png` for social sharing previews.
 
 ### Fixed
+- **Touch/pointer coordinates tracking drift**: Prevented Kalman prediction/velocity extrapolation during touch control mode to stop cursor drifting during idle frames.
 - **Canvas upscaling resolution blurriness**: Resized canvas backing dimensions dynamically inside `fitViewport()` to match actual screen client bounds, fixing upscale stretching.
 - **Floating text rendering gap**: Connected `pool.getFloatingTexts()` to a new `drawFloatingTexts()` renderer in `EffectsManager.ts` to display score increments, level transitions, shield warnings, and damage impacts.
 
