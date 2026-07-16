@@ -12,3 +12,4 @@ All release-blocking issues, user experience gaps, and specifications have been 
 - **Social Graph og:image Assets:** Resolved. A premium cyberpunk tech preview image has been generated and saved to `public/og-preview.png`.
 - **MediaPipe CDN Dependencies:** Handled. Graceful touch fallback covers offline starts.
 - **Touch / Pointer Coordinate Jitter & Drift:** Resolved. Added early returns in `InputManager.ts` to prevent Kalman filter velocity prediction during touch mode, resolving stationary drift.
+- **MediaPipe Worker Initialization Crash:** Resolved. Solved the Emscripten `ModuleFactory not set` error inside the module-scoped Web Worker by fetching and evaluating the WASM loader glue script within the worker's global scope.
