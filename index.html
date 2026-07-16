@@ -43,6 +43,9 @@
           <div id="control-toggle-hud" class="hud-panel glass-panel interactive" style="cursor: pointer; border-color: rgba(0, 255, 255, 0.25); font-size: 0.9rem;">
             CONTROL: GESTURE
           </div>
+          <div id="ai-status-badge" class="hud-panel glass-panel" style="border-color: rgba(0, 255, 255, 0.25); font-size: 0.9rem; color: var(--text-secondary);">
+            AI: <span id="ai-status-text" style="color: var(--text-secondary);">LOADING</span>
+          </div>
           <div id="quality-badge">QUALITY: HIGH</div>
           <div class="hud-panel glass-panel" style="border-color: rgba(255, 0, 60, 0.25);">
             HEALTH: <span id="health-val">100</span>%
@@ -63,6 +66,13 @@
         <div id="touch-actions" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); gap: 15px; z-index: 15;">
           <button id="touch-shield-btn" class="btn-neon interactive" style="font-size: 0.8rem; padding: 8px 18px; border-color: var(--neon-purple); color: var(--neon-purple); border-radius: 20px;">SHIELD</button>
           <button id="touch-emp-btn" class="btn-neon interactive" style="font-size: 0.8rem; padding: 8px 18px; border-color: var(--neon-cyan); color: var(--neon-cyan); border-radius: 20px;">EMP PULSE</button>
+        </div>
+      </div>
+
+      <!-- Hand missing alert overlay -->
+      <div id="hand-missing-prompt" class="overlay-screen" style="display: none; pointer-events: none; z-index: 5;">
+        <div class="glass-panel" style="background: rgba(15, 15, 30, 0.5); border-color: var(--neon-cyan); padding: 12px 24px; pointer-events: none;">
+          <p style="color: var(--neon-cyan); font-weight: bold; margin: 0; font-size: 1.2rem; text-shadow: 0 0 10px var(--neon-cyan); max-width: none;">SHOW YOUR HAND TO START</p>
         </div>
       </div>
 

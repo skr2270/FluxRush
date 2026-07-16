@@ -24,7 +24,7 @@ Built with **Vite, TypeScript, and MediaPipe Hand Landmarker**, FluxRush feature
 ## 🎮 How to Play
 
 1.  Open the game and authorize camera access. (Make sure your environment is well-lit!).
-2.  If camera access is denied, **fallback touch/pointer controls** are automatically initialized.
+2.  If camera access is denied, **fallback touch/pointer controls** and **keyboard controls (Left/Right Arrow keys or A/D keys)** are automatically initialized.
 3.  Position your hand in front of the camera. The glowing cyan orb will lock onto your index fingertip.
 4.  **Objective**:
     *   Touch green particles to collect them, increasing your score and combo multiplier.

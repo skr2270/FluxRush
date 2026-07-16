@@ -5,6 +5,28 @@ import { AudioManager } from './AudioManager';
 import { EffectsManager } from './EffectsManager';
 import { SpatialHash } from '../utils/SpatialHash';
 
+class SafeStorage {
+  private static memoryStorage: Record<string, string> = {};
+
+  public static getItem(key: string): string | null {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn('localStorage is blocked or unavailable, falling back to memory:', e);
+      return this.memoryStorage[key] || null;
+    }
+  }
+
+  public static setItem(key: string, value: string): void {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn('localStorage is blocked or unavailable, falling back to memory:', e);
+      this.memoryStorage[key] = value;
+    }
+  }
+}
+
 export class GameManager {
   private state: GameState = 'MENU';
   private score = 0;
@@ -54,7 +76,7 @@ export class GameManager {
     this.effects = effects;
     this.spatialHash = new SpatialHash<GameCollectible | GameHazard>(this.width, this.height, 100);
 
-    const storedHighScore = localStorage.getItem('gesture_game_highscore');
+    const storedHighScore = SafeStorage.getItem('gesture_game_highscore');
     if (storedHighScore) {
       this.highScore = parseInt(storedHighScore, 10);
     }
@@ -97,7 +119,7 @@ export class GameManager {
 
     if (this.score > this.highScore) {
       this.highScore = this.score;
-      localStorage.setItem('gesture_game_highscore', this.score.toString());
+      SafeStorage.setItem('gesture_game_highscore', this.score.toString());
     }
   }
 

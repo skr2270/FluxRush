@@ -53,45 +53,77 @@ export class HandTrackingManager {
     this.lightCtx = this.lightCanvas.getContext('2d', { alpha: false });
   }
 
+  private startResolver: (() => void) | null = null;
+  private startRejecter: ((err: any) => void) | null = null;
+  private initTimeoutId: number | null = null;
+
   public async start(): Promise<void> {
     this.onStateChange('LOADING', 'Accessing camera...');
-    try {
-      this.video = document.createElement('video');
-      this.video.setAttribute('playsinline', '');
-      this.video.setAttribute('muted', '');
-      
-      const constraints: MediaStreamConstraints = {
-        video: {
-          width: { ideal: this.width },
-          height: { ideal: this.height },
-          facingMode: 'user',
-          frameRate: { ideal: 30 }
-        },
-        audio: false
-      };
+    
+    // Stop any existing session
+    this.stop();
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      this.video.srcObject = stream;
-      
-      await new Promise<void>((resolve) => {
-        if (!this.video) return;
-        this.video.onloadedmetadata = () => {
-          this.video!.play().then(() => resolve());
+    return new Promise<void>(async (resolve, reject) => {
+      this.startResolver = resolve;
+      this.startRejecter = reject;
+
+      // Set a 6-second timeout for model WASM loading
+      this.initTimeoutId = window.setTimeout(() => {
+        this.stop();
+        this.onStateChange('ERROR', 'MediaPipe tracker load timeout. Touch mode active.');
+        reject(new Error('MediaPipe model load timeout'));
+      }, 6000);
+
+      try {
+        this.video = document.createElement('video');
+        this.video.setAttribute('playsinline', '');
+        this.video.setAttribute('muted', '');
+        
+        const constraints: MediaStreamConstraints = {
+          video: {
+            width: { ideal: this.width },
+            height: { ideal: this.height },
+            facingMode: 'user',
+            frameRate: { ideal: 30 }
+          },
+          audio: false
         };
-      });
 
-      this.isTracking = true;
-      this.initWorker();
-      this.startSupervisor();
-      this.loop();
-    } catch (err) {
-      this.onStateChange('ERROR', 'Camera access denied or unavailable. Falling back to Touch.');
-      console.error('Camera init error:', err);
-    }
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        this.video.srcObject = stream;
+        
+        await new Promise<void>((resolveVideo) => {
+          if (!this.video) return;
+          this.video.onloadedmetadata = () => {
+            this.video!.play().then(() => resolveVideo());
+          };
+        });
+
+        this.isTracking = true;
+        this.initWorker();
+        this.startSupervisor();
+        this.loop();
+      } catch (err) {
+        if (this.initTimeoutId) {
+          clearTimeout(this.initTimeoutId);
+          this.initTimeoutId = null;
+        }
+        this.onStateChange('ERROR', 'Camera access denied or unavailable. Falling back to Touch.');
+        console.error('Camera init error:', err);
+        reject(err);
+      }
+    });
   }
 
   public stop(): void {
     this.isTracking = false;
+    if (this.initTimeoutId) {
+      clearTimeout(this.initTimeoutId);
+      this.initTimeoutId = null;
+    }
+    this.startResolver = null;
+    this.startRejecter = null;
+
     if (this.trackingFrameId) {
       cancelAnimationFrame(this.trackingFrameId);
     }
@@ -130,7 +162,16 @@ export class HandTrackingManager {
 
       if (type === 'INITIALIZED') {
         this.workerInitialized = true;
+        if (this.initTimeoutId) {
+          clearTimeout(this.initTimeoutId);
+          this.initTimeoutId = null;
+        }
         this.onStateChange('READY');
+        if (this.startResolver) {
+          this.startResolver();
+          this.startResolver = null;
+          this.startRejecter = null;
+        }
       } else if (type === 'PONG') {
         // Heartbeat verification response
       } else if (type === 'RESULTS') {
@@ -144,11 +185,29 @@ export class HandTrackingManager {
       } else if (type === 'ERROR') {
         console.error('Worker error:', e.data.error);
         this.isWorkerBusy = false;
+        if (this.initTimeoutId) {
+          clearTimeout(this.initTimeoutId);
+          this.initTimeoutId = null;
+        }
+        if (this.startRejecter) {
+          this.startRejecter(new Error(e.data.error));
+          this.startResolver = null;
+          this.startRejecter = null;
+        }
       }
     };
 
     this.worker.onerror = (err) => {
       console.error('Worker supervisor detected thread crash:', err);
+      if (this.initTimeoutId) {
+        clearTimeout(this.initTimeoutId);
+        this.initTimeoutId = null;
+      }
+      if (this.startRejecter) {
+        this.startRejecter(err);
+        this.startResolver = null;
+        this.startRejecter = null;
+      }
       this.recoverWorker();
     };
 

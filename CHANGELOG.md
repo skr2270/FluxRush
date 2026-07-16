@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.3] - 2026-07-16
+
+### Added
+- **AI status tracking badge**: Implemented a dynamic HUD status indicator displaying "ACTIVE", "NO HAND", "LOADING", or "OFF" with matching neon colors.
+- **Show your hand instruction prompt**: Added a central glassmorphic warning overlay instructing the user to position their hand when in gesture mode and tracking is lost.
+- **Arrow keys movement fallback**: Added left/right arrow keys and A/D keys movement support when in fallback touch mode.
+- **Social graph preview image**: Generated and added `public/og-preview.png` for social sharing previews.
+
+### Fixed
+- **Canvas upscaling resolution blurriness**: Resized canvas backing dimensions dynamically inside `fitViewport()` to match actual screen client bounds, fixing upscale stretching.
+- **Floating text rendering gap**: Connected `pool.getFloatingTexts()` to a new `drawFloatingTexts()` renderer in `EffectsManager.ts` to display score increments, level transitions, shield warnings, and damage impacts.
+
 ## [1.0.2] - 2026-06-27
 
 ### Added

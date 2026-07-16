@@ -1,4 +1,4 @@
-import { Vec2, GameParticle, GameCollectible, GameHazard } from '../types';
+import { Vec2, GameParticle, GameCollectible, GameHazard, FloatingText } from '../types';
 
 interface GridNode {
   x: number; y: number;
@@ -339,5 +339,24 @@ export class EffectsManager {
       this.fxCtx.fill();
     }
     this.fxCtx.globalAlpha = 1.0;
+  }
+
+  /**
+   * Renders floating texts.
+   */
+  public drawFloatingTexts(texts: FloatingText[]): void {
+    const len = texts.length;
+    for (let i = 0; i < len; i++) {
+      const t = texts[i];
+      if (!t.active) continue;
+
+      this.fxCtx.save();
+      this.fxCtx.fillStyle = t.color;
+      this.fxCtx.globalAlpha = t.alpha;
+      this.fxCtx.font = `bold ${t.size}px Outfit, sans-serif`;
+      this.fxCtx.textAlign = 'center';
+      this.fxCtx.fillText(t.text, t.pos.x, t.pos.y);
+      this.fxCtx.restore();
+    }
   }
 }

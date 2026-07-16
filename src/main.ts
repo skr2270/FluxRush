@@ -39,12 +39,20 @@ const finalScoreText = document.getElementById('final-score-val')!;
 const highscoreText = document.getElementById('highscore-val')!;
 const qualityBadge = document.getElementById('quality-badge')!;
 const statsMonitor = document.getElementById('stats-monitor')!;
+const aiStatusText = document.getElementById('ai-status-text')!;
+const aiStatusBadge = document.getElementById('ai-status-badge')!;
+const handMissingPrompt = document.getElementById('hand-missing-prompt')!;
 
 // Global States
 let lastTime = performance.now();
 let bgTimer = 0;
 let prevScore = -1;
 let prevHealth = -1;
+
+// Keyboard Fallback Controls
+let keyboardX = 400;
+let keyboardY = 450;
+const keysPressed: Record<string, boolean> = {};
 
 // Instantiate Managers
 const pool = new ObjectPoolManager();
@@ -67,11 +75,33 @@ const tracking = new HandTrackingManager(
   (res) => {
     input.updateTracking(res);
     handPreview.updateLandmarks(res.landmarks, res.handPresent);
+    if (input.getControlMode() === 'hand') {
+      if (res.handPresent) {
+        aiStatusText.textContent = 'ACTIVE';
+        aiStatusText.style.color = 'var(--neon-green)';
+        aiStatusBadge.style.borderColor = 'var(--neon-green)';
+      } else {
+        aiStatusText.textContent = 'NO HAND';
+        aiStatusText.style.color = 'var(--text-secondary)';
+        aiStatusBadge.style.borderColor = 'rgba(0, 255, 255, 0.25)';
+      }
+    }
   },
   (state, msg) => {
     console.log(`Tracking state changed to: ${state} (${msg || ''})`);
     if (state === 'ERROR' || state === 'LIGHT_WARN') {
       pool.spawnFloatingText(400, 300, msg || 'LIGHT WARNING', '#ff003c');
+    }
+    if (input.getControlMode() === 'hand') {
+      if (state === 'ERROR') {
+        aiStatusText.textContent = 'ERROR';
+        aiStatusText.style.color = 'var(--neon-red)';
+        aiStatusBadge.style.borderColor = 'var(--neon-red)';
+      } else if (state === 'LOADING') {
+        aiStatusText.textContent = 'LOADING';
+        aiStatusText.style.color = 'var(--neon-cyan)';
+        aiStatusBadge.style.borderColor = 'var(--neon-cyan)';
+      }
     }
   }
 );
@@ -80,6 +110,14 @@ const tracking = new HandTrackingManager(
 function fitViewport(): void {
   const w = gameCanvas.clientWidth;
   const h = gameCanvas.clientHeight;
+  bgCanvas.width = w;
+  gameCanvas.width = w;
+  fxCanvas.width = w;
+  uiCanvas.width = w;
+  bgCanvas.height = h;
+  gameCanvas.height = h;
+  fxCanvas.height = h;
+  uiCanvas.height = h;
   input.resize(w, h);
   effects.resize(w, h);
   game.resize(w, h);
@@ -97,23 +135,36 @@ function updateControlMode(mode: 'hand' | 'touch'): void {
     cameraPreview.style.display = 'none';
     tracking.stop();
     touchActions.style.display = 'flex';
+    aiStatusText.textContent = 'OFF';
+    aiStatusText.style.color = 'var(--text-secondary)';
+    aiStatusBadge.style.borderColor = 'rgba(255, 255, 255, 0.1)';
   } else {
     cameraPreview.style.display = 'block';
     touchActions.style.display = 'none';
-    tracking.start().then(() => {
-      if (tracking['video']) {
-        handPreview.setVideo(tracking['video']);
-      }
-    });
+    tracking.start()
+      .then(() => {
+        if (tracking['video']) {
+          handPreview.setVideo(tracking['video']);
+        }
+      })
+      .catch((err) => {
+        console.warn("Camera start failed, falling back to touch mode:", err);
+        updateControlMode('touch');
+      });
   }
 }
 
-// Start camera stream on startup
-tracking.start().then(() => {
-  if (tracking['video']) {
-    handPreview.setVideo(tracking['video']);
-  }
-});
+// Start camera stream on startup with graceful fallback to touch mode
+tracking.start()
+  .then(() => {
+    if (tracking['video']) {
+      handPreview.setVideo(tracking['video']);
+    }
+  })
+  .catch((err) => {
+    console.warn("Initial camera start failed, falling back to touch mode:", err);
+    updateControlMode('touch');
+  });
 
 // UI Event listeners
 controlSetupBtn.addEventListener('click', () => {
@@ -140,6 +191,8 @@ startBtn.addEventListener('click', () => {
   // Ensure the UI matches the current control mode
   const currentMode = input.getControlMode();
   updateControlMode(currentMode);
+  keyboardX = 400;
+  keyboardY = 450;
   game.startGame();
 });
 
@@ -147,6 +200,8 @@ restartBtn.addEventListener('click', () => {
   gameoverScreen.style.display = 'none';
   const currentMode = input.getControlMode();
   updateControlMode(currentMode);
+  keyboardX = 400;
+  keyboardY = 450;
   game.startGame();
 });
 
@@ -192,6 +247,17 @@ function gameLoop(timestamp: number): void {
   const frameStart = performance.now();
 
   // 1. Tick calculations
+  if (input.getControlMode() === 'touch') {
+    const moveSpeed = 600; // pixels per second
+    if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['A']) {
+      keyboardX = Math.max(20, keyboardX - moveSpeed * dt);
+      input.setTouchFallback(keyboardX, keyboardY);
+    }
+    if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['D']) {
+      keyboardX = Math.min(780, keyboardX + moveSpeed * dt);
+      input.setTouchFallback(keyboardX, keyboardY);
+    }
+  }
   input.tick(dt);
   game.tick(dt);
   test.tick(dt);
@@ -218,6 +284,7 @@ function gameLoop(timestamp: number): void {
   effects.drawCollectibles(pool.getCollectibles(), quality);
   effects.drawHazards(pool.getHazards(), quality);
   effects.drawParticles(pool.getParticles());
+  effects.drawFloatingTexts(pool.getFloatingTexts());
   effects.finalizeCanvases();
 
   const paintEnd = performance.now();
@@ -234,6 +301,7 @@ function updateHUD(): void {
   const score = game.getScore();
   const health = game.getHealth();
   const state = game.getGameState();
+  const mode = input.getControlMode();
 
   if (state === 'PLAYING') {
     if (score !== prevScore) {
@@ -244,10 +312,18 @@ function updateHUD(): void {
       healthText.textContent = health.toString();
       prevHealth = health;
     }
-  } else if (state === 'GAMEOVER' && gameoverScreen.style.display !== 'flex') {
-    finalScoreText.textContent = score.toString();
-    highscoreText.textContent = game.getHighScore().toString();
-    gameoverScreen.style.display = 'flex';
+    if (mode === 'hand' && !input.isHandVisible()) {
+      handMissingPrompt.style.display = 'flex';
+    } else {
+      handMissingPrompt.style.display = 'none';
+    }
+  } else {
+    handMissingPrompt.style.display = 'none';
+    if (state === 'GAMEOVER' && gameoverScreen.style.display !== 'flex') {
+      finalScoreText.textContent = score.toString();
+      highscoreText.textContent = game.getHighScore().toString();
+      gameoverScreen.style.display = 'flex';
+    }
   }
 
   // Update Stats Monitor overlay once every FPS refresh cycle
@@ -272,6 +348,15 @@ function toggleDebugMode(): void {
   debugActionsContainer.style.display = debugVisible ? 'flex' : 'none';
   statsMonitor.style.display = debugVisible ? 'block' : 'none';
 }
+
+window.addEventListener('keydown', (e) => {
+  if (game.getGameState() !== 'PLAYING') return;
+  keysPressed[e.key] = true;
+});
+
+window.addEventListener('keyup', (e) => {
+  keysPressed[e.key] = false;
+});
 
 document.addEventListener('keydown', (e) => {
   // 1. Check for Ctrl+Shift+D
