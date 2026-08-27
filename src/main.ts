@@ -113,8 +113,10 @@ const tracking = new HandTrackingManager(
   },
   (state, msg) => {
     console.log(`Tracking state changed to: ${state} (${msg || ''})`);
-    if (state === 'ERROR' || state === 'LIGHT_WARN') {
-      pool.spawnFloatingText(400, 300, msg || 'LIGHT WARNING', '#ff003c');
+    const cx = gameCanvas.width / 2;
+    const cy = gameCanvas.height / 2;
+    if (state === 'LIGHT_WARN') {
+      pool.spawnFloatingText(cx, cy, msg || 'LIGHT WARNING', '#ff003c');
     }
     if (input.getControlMode() === 'hand') {
       if (state === 'ERROR') {
@@ -125,7 +127,17 @@ const tracking = new HandTrackingManager(
         aiStatusText.textContent = 'ERROR';
         aiStatusText.style.color = 'var(--neon-red)';
         aiStatusBadge.style.borderColor = 'var(--neon-red)';
-        pool.spawnFloatingText(400, 350, errorMsg, '#ff003c', 20);
+        pool.spawnFloatingText(cx, cy + 50, errorMsg, '#ff003c', 20);
+        // The tracker has given up (repeated worker crashes, denied camera,
+        // load timeout). Hand it over to touch instead of leaving the player
+        // with a dead cursor.
+        if (!tracking.isActive()) {
+          updateControlMode('touch');
+        }
+      } else if (state === 'RECOVERING') {
+        aiStatusText.textContent = 'RECONNECT';
+        aiStatusText.style.color = 'var(--neon-red)';
+        aiStatusBadge.style.borderColor = 'var(--neon-red)';
       } else if (state === 'LOADING') {
         aiStatusText.textContent = 'LOADING';
         aiStatusText.style.color = 'var(--neon-cyan)';
@@ -170,6 +182,8 @@ function updateControlMode(mode: 'hand' | 'touch'): void {
   } else {
     cameraPreview.style.display = 'block';
     touchActions.style.display = 'none';
+    // start() is a no-op when a session is already live, so restarting a round
+    // no longer tears down the camera and re-downloads the MediaPipe model.
     tracking.start()
       .then(() => {
         if (tracking['video']) {
@@ -362,6 +376,10 @@ canvasContainer.addEventListener('pointermove', handlePointerInput);
 
 function handlePointerInput(e: PointerEvent): void {
   if (game.getGameState() !== 'PLAYING' || isPaused) return;
+  // In gesture mode the hand owns the cursor. Without this guard any mouse
+  // movement over the canvas (pointermove fires with no button held) fought
+  // the tracker for control and forced handPresent=true.
+  if (input.getControlMode() !== 'touch') return;
   
   const rect = gameCanvas.getBoundingClientRect();
   const scaleX = gameCanvas.width / rect.width;

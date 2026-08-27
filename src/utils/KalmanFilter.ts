@@ -11,12 +11,18 @@ export class KalmanFilter {
   private p20 = 0; private p21 = 0; private p22 = 1; private p23 = 0;
   private p30 = 0; private p31 = 0; private p32 = 0; private p33 = 1;
 
-  // Process Noise Q (diagonal components)
-  private q_pos = 0.05; // noise in position
-  private q_vel = 0.2;  // noise in velocity
+  // Process Noise Q (diagonal components), expressed as a RATE so the filter
+  // behaves identically on 60Hz and 120Hz displays. Values are the previous
+  // per-frame constants x60, keeping the tuning at 60fps unchanged.
+  private q_pos = 3.0; // position noise per second
+  private q_vel = 12.0; // velocity noise per second
 
   // Measurement Noise R (diagonal components)
   private r_pos = 0.15; // noise in tracking coordinates
+
+  // Safety net: the cursor can never legitimately move faster than this, and
+  // an unbounded velocity state is what pins it into a screen corner.
+  private static readonly MAX_SPEED = 3000; // px/s
 
   constructor() {
     this.reset(0, 0);
@@ -50,36 +56,47 @@ export class KalmanFilter {
     // [0  0  1   0]
     // [0  0  0   1]
 
-    // P_new = F * P * F^T + Q
-    // We compute this in-place to avoid array allocations.
+    // P_new = F * P * F^T + Q, computed in-place to avoid array allocations.
+    //
+    // These terms were previously transposed (p01/p10/p12/p21/p30 each pulled
+    // from the wrong element). That broke the symmetry of P, which corrupted
+    // the Kalman gain and let the velocity state diverge: a hand held still
+    // drove the estimate past 2000 px/s within seconds, slamming the cursor
+    // into a screen edge. Derivation, with M = F * P:
+    //   M[0][j] = P[0][j] + dt*P[2][j]     M[2][j] = P[2][j]
+    //   M[1][j] = P[1][j] + dt*P[3][j]     M[3][j] = P[3][j]
+    // then P_new[i][0] = M[i][0] + dt*M[i][2], P_new[i][1] = M[i][1] + dt*M[i][3],
+    // and columns 2 and 3 pass through unchanged.
     const dt2 = dt * dt;
 
-    // Let's make it simpler and mathematically solid using intermediate state.
-    // The state transition elements:
-    const p00_t = this.p00 + dt * (this.p20 + this.p02) + dt2 * this.p22 + this.q_pos;
-    const p01_t = this.p01 + dt * (this.p30 + this.p03) + dt2 * this.p32;
+    const p00_t = this.p00 + dt * (this.p20 + this.p02) + dt2 * this.p22;
+    const p01_t = this.p01 + dt * (this.p21 + this.p03) + dt2 * this.p23;
     const p02_t = this.p02 + dt * this.p22;
     const p03_t = this.p03 + dt * this.p23;
 
-    const p10_t = this.p10 + dt * (this.p20 + this.p12) + dt2 * this.p32;
-    const p11_t = this.p11 + dt * (this.p31 + this.p13) + dt2 * this.p33 + this.q_pos;
-    const p12_t = this.p12 + dt * this.p23;
+    const p10_t = this.p10 + dt * (this.p30 + this.p12) + dt2 * this.p32;
+    const p11_t = this.p11 + dt * (this.p31 + this.p13) + dt2 * this.p33;
+    const p12_t = this.p12 + dt * this.p32;
     const p13_t = this.p13 + dt * this.p33;
 
     const p20_t = this.p20 + dt * this.p22;
-    const p21_t = this.p21 + dt * this.p32;
-    const p22_t = this.p22 + this.q_vel;
+    const p21_t = this.p21 + dt * this.p23;
+    const p22_t = this.p22;
     const p23_t = this.p23;
 
-    const p30_t = this.p30 + dt * this.p23;
+    const p30_t = this.p30 + dt * this.p32;
     const p31_t = this.p31 + dt * this.p33;
     const p32_t = this.p32;
-    const p33_t = this.p33 + this.q_vel;
+    const p33_t = this.p33;
 
-    this.p00 = p00_t; this.p01 = p01_t; this.p02 = p02_t; this.p03 = p03_t;
-    this.p10 = p10_t; this.p11 = p11_t; this.p12 = p12_t; this.p13 = p13_t;
-    this.p20 = p20_t; this.p21 = p21_t; this.p22 = p22_t; this.p23 = p23_t;
-    this.p30 = p30_t; this.p31 = p31_t; this.p32 = p32_t; this.p33 = p33_t;
+    // Process noise scaled by elapsed time.
+    const qPos = this.q_pos * dt;
+    const qVel = this.q_vel * dt;
+
+    this.p00 = p00_t + qPos; this.p01 = p01_t; this.p02 = p02_t; this.p03 = p03_t;
+    this.p10 = p10_t; this.p11 = p11_t + qPos; this.p12 = p12_t; this.p13 = p13_t;
+    this.p20 = p20_t; this.p21 = p21_t; this.p22 = p22_t + qVel; this.p23 = p23_t;
+    this.p30 = p30_t; this.p31 = p31_t; this.p32 = p32_t; this.p33 = p33_t + qVel;
   }
 
   /**
@@ -162,6 +179,26 @@ export class KalmanFilter {
     this.p10 = p10_c; this.p11 = p11_c; this.p12 = p12_c; this.p13 = p13_c;
     this.p20 = p20_c; this.p21 = p21_c; this.p22 = p22_c; this.p23 = p23_c;
     this.p30 = p30_c; this.p31 = p31_c; this.p32 = p32_c; this.p33 = p33_c;
+
+    this.clampVelocity();
+  }
+
+  /**
+   * Bounds the velocity state. With the covariance math correct this should
+   * never engage, but it keeps a single bad frame from launching the cursor.
+   */
+  private clampVelocity(): void {
+    if (!Number.isFinite(this.vx) || !Number.isFinite(this.vy)) {
+      this.vx = 0;
+      this.vy = 0;
+      return;
+    }
+    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    if (speed > KalmanFilter.MAX_SPEED) {
+      const scale = KalmanFilter.MAX_SPEED / speed;
+      this.vx *= scale;
+      this.vy *= scale;
+    }
   }
 
   public getPosition(): { x: number; y: number } {

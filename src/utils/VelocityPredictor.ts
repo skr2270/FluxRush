@@ -102,6 +102,38 @@ export class VelocityPredictor {
     out.y = this.prevY + (this.vy * predictionDt + 0.5 * this.ay * predictionDt * predictionDt) * damping;
   }
 
+  /**
+   * Extrapolated *displacement* since the last sample, with the same damping
+   * as predict(). Callers that track a smoothed cursor must use this rather
+   * than predict(): predict() returns an absolute position anchored to the
+   * last RAW landmark, so applying it to a filtered cursor teleports it by the
+   * whole smoothing lag every time tracking drops a frame.
+   */
+  public predictDelta(currentTimestampMs: number, out: Vec2): void {
+    if (!this.hasHistory) {
+      out.x = 0;
+      out.y = 0;
+      return;
+    }
+
+    const dt = (currentTimestampMs - this.lastTimestamp) / 1000.0;
+    if (dt <= 0) {
+      out.x = 0;
+      out.y = 0;
+      return;
+    }
+
+    const predictionDt = Math.min(dt, this.maxPredictDt);
+
+    let damping = 1.0;
+    if (dt > 0.04) {
+      damping = Math.pow(this.dragFactor, (dt - 0.04) / 0.016);
+    }
+
+    out.x = (this.vx * predictionDt + 0.5 * this.ax * predictionDt * predictionDt) * damping;
+    out.y = (this.vy * predictionDt + 0.5 * this.ay * predictionDt * predictionDt) * damping;
+  }
+
   public getVelocity(): Vec2 {
     return { x: this.vx, y: this.vy };
   }

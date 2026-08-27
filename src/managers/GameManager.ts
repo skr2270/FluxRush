@@ -46,7 +46,9 @@ export class GameManager {
   private shieldActive = false;
   private shieldTimer = 0;
   private lastShieldActivation = 0;
+  private lastEmpActivation = 0;
   private invincibilityTimer = 0;
+  private readonly empCooldownMs = 700;
 
   // Spawning intervals (seconds)
   private collectibleTimer = 0;
@@ -103,10 +105,14 @@ export class GameManager {
     this.lastDifficultyInc = 0;
     this.shieldActive = false;
     this.shieldTimer = 0;
+    this.lastShieldActivation = 0;
+    this.lastEmpActivation = 0;
     this.invincibilityTimer = 0;
     this.collectibleTimer = 0;
     this.hazardTimer = 0;
 
+    // Drop any gesture pulse latched while the menu was up.
+    this.input.clearGestureEdges();
     this.pool.clear();
     this.audio.init();
     this.audio.startBgm();
@@ -180,8 +186,11 @@ export class GameManager {
       }
     }
 
-    // 2. Pinch Gesture -> EMP Shockwave (destroys nearby hazards, costs combo)
-    if (this.input.getPinch() && this.combo >= 5) {
+    // 2. Pinch Gesture -> EMP Shockwave (destroys nearby hazards, costs combo).
+    // The cooldown is a backstop: even if a gesture ever re-triggers, the
+    // particle/audio burst below cannot repeat at frame rate.
+    if (this.input.getPinch() && this.combo >= 5 && now - this.lastEmpActivation > this.empCooldownMs) {
+      this.lastEmpActivation = now;
       this.combo -= 5;
       this.comboMultiplier = Math.max(1, Math.floor(this.combo / 5) + 1);
       this.audio.playEmpPulse();
