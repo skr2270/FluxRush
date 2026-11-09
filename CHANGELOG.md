@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.5] - 2026-09-26
+
+### Added
+- **GPU-to-CPU Graceful Fallback**: Added automatic fallback to CPU delegate in `tracking.worker.ts` when WebGL2 GPU context is unavailable, eliminating Web Worker crashes and respawn loops on unsupported devices.
+- **Strictly Monotonic Tracking Timestamps**: Enforced safe, strictly increasing timestamps for MediaPipe `detectForVideo` calls to prevent graph corruption and inference failures.
+- **Fail-Safe Control Mode Handover**: Added automatic handover to touch/pointer controls if camera tracking encounters repeated worker crashes or permission denial, preventing dead cursors.
+- **EMP Shockwave Cooldown Safeguard**: Implemented a 700ms cooldown limiter (`empCooldownMs`) to prevent accidental double-firings during pinch gestures.
+- **Gesture Edge Clearing**: Cleared latched gesture pulses upon restarting or resuming gameplay to prevent stale shield or EMP activations.
+
+### Fixed
+- **Pointer Event Contention in Gesture Mode**: Guarded `pointermove` listener to ignore non-touch events during hand gesture mode, preventing background mouse movements from overriding hand tracking.
+- **Camera Stream Reuse**: Prevented redundant MediaPipe teardown and re-downloads when restarting game sessions.
+- **Floating Text Centering**: Fixed floating text spawn coordinates to anchor dynamically to canvas centers.
+
+### Changed
+- **Branding & Title Consistency**: Standardized application name to FluxRush across `index.html` and UI components.
+- **Dependency Upgrades**: Updated dependencies in `package.json` and resolved lockfile targets.
+
 ## [1.0.4] - 2026-07-17
 
 ### Added

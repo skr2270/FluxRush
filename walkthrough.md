@@ -19,26 +19,26 @@ We implemented a completely decoupled, modular, and performance-optimized browse
 ## Codebase Modules Created
 
 We created and verified the following source modules:
-*   [index.html](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/index.html) - Main screen UI structure.
-*   [package.json](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/package.json) - Dependencies, containing `@mediapipe/tasks-vision` and Yarn lock targets.
-*   [tsconfig.json](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/tsconfig.json) - Strict compiler configurations.
-*   [vite.config.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/vite.config.ts) - Bundling directives for Web Workers.
-*   [src/main.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/main.ts) - Bootstrapper coordinating loop timers.
-*   [src/style.css](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/style.css) - Neon glassmorphic dark interface themes.
-*   [src/types/index.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/types/index.ts) - TypeScript typings.
-*   [src/utils/KalmanFilter.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/utils/KalmanFilter.ts) - 2D state-estimation filter.
-*   [src/utils/AdaptiveSmoother.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/utils/AdaptiveSmoother.ts) - Speed-dependent exponential filter.
-*   [src/utils/VelocityPredictor.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/utils/VelocityPredictor.ts) - Dead-reckoning kinematic projector.
-*   [src/utils/SpatialHash.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/utils/SpatialHash.ts) - Grid-bucketing broad-phase array.
-*   [src/workers/tracking.worker.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/workers/tracking.worker.ts) - Off-thread hand landmarker inference runner.
-*   [src/managers/HandTrackingManager.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/managers/HandTrackingManager.ts) - Camera feed controller and worker watchdog.
-*   [src/managers/InputManager.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/managers/InputManager.ts) - Landmark mirror-mapper and gesture parser.
-*   [src/managers/ObjectPoolManager.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/managers/ObjectPoolManager.ts) - GC-free Ring buffer pool allocator.
-*   [src/managers/EffectsManager.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/managers/EffectsManager.ts) - Multi-canvas sprite painter and trail controller.
-*   [src/managers/AudioManager.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/managers/AudioManager.ts) - WebAudio API sound synthesizer.
-*   [src/managers/PerformanceMonitor.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/managers/PerformanceMonitor.ts) - Frame budget tracker and quality scaler.
-*   [src/managers/GameManager.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/managers/GameManager.ts) - Gameplay orchestrator, level manager, and EMP shockwave triggers.
-*   [src/testing/TestSuite.ts](file:///g:/Other%20computers/USB%20and%20External%20Devices/realme%209%20Pro+/Projects-c/GestureGame/src/testing/TestSuite.ts) - Built-in stress test and tracking-loss simulator.
+*   [index.html](file:///c:/Saikumar/Projects/GestureGame/FluxRush/index.html) - Main screen UI structure.
+*   [package.json](file:///c:/Saikumar/Projects/GestureGame/FluxRush/package.json) - Dependencies, containing `@mediapipe/tasks-vision` and Vite configuration.
+*   [tsconfig.json](file:///c:/Saikumar/Projects/GestureGame/FluxRush/tsconfig.json) - Strict compiler configurations.
+*   [vite.config.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/vite.config.ts) - Bundling directives for Web Workers.
+*   [src/main.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/main.ts) - Bootstrapper coordinating loop timers, pause menus, and HUD elements.
+*   [src/style.css](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/style.css) - Neon glassmorphic dark interface themes and animated HUD meters.
+*   [src/types/index.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/types/index.ts) - TypeScript typings.
+*   [src/utils/KalmanFilter.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/utils/KalmanFilter.ts) - 2D state-estimation filter.
+*   [src/utils/AdaptiveSmoother.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/utils/AdaptiveSmoother.ts) - Speed-dependent exponential filter.
+*   [src/utils/VelocityPredictor.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/utils/VelocityPredictor.ts) - Dead-reckoning kinematic projector.
+*   [src/utils/SpatialHash.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/utils/SpatialHash.ts) - Grid-bucketing broad-phase array.
+*   [src/workers/tracking.worker.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/workers/tracking.worker.ts) - Off-thread hand landmarker inference runner with GPU/CPU fallback.
+*   [src/managers/HandTrackingManager.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/managers/HandTrackingManager.ts) - Camera feed controller and worker watchdog.
+*   [src/managers/InputManager.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/managers/InputManager.ts) - Landmark mirror-mapper and gesture parser.
+*   [src/managers/ObjectPoolManager.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/managers/ObjectPoolManager.ts) - GC-free Ring buffer pool allocator.
+*   [src/managers/EffectsManager.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/managers/EffectsManager.ts) - Multi-canvas sprite painter and trail controller.
+*   [src/managers/AudioManager.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/managers/AudioManager.ts) - Procedural WebAudio API sound synthesizer.
+*   [src/managers/PerformanceMonitor.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/managers/PerformanceMonitor.ts) - Frame budget tracker and quality scaler.
+*   [src/managers/GameManager.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/managers/GameManager.ts) - Gameplay orchestrator, level manager, and EMP shockwave triggers.
+*   [src/testing/TestSuite.ts](file:///c:/Saikumar/Projects/GestureGame/FluxRush/src/testing/TestSuite.ts) - Built-in stress test and tracking-loss simulator.
 
 ---
 

@@ -8,7 +8,7 @@ Built with **Vite, TypeScript, and MediaPipe Hand Landmarker**, FluxRush feature
 
 ## 🚀 Key Features
 
-*   **Decoupled Dual-Loop Threading**: Hand landmark inference runs inside a background Web Worker (typically at 20-30 FPS) while the main thread renders gameplay at 60-120 FPS. Gaps between tracking updates are filled in real-time by a **Velocity Predictor** using dead-reckoning extrapolation.
+*   **Decoupled Dual-Loop Threading**: Hand landmark inference runs inside a background Web Worker (typically at 20-30 FPS) while the main thread renders gameplay at 60-120 FPS. Gaps between tracking updates are filled in real-time by a **Velocity Predictor** using dead-reckoning extrapolation. Includes automatic GPU-to-CPU delegate fallback if WebGL2 is unavailable, and graceful handover to touch mode if tracking fails.
 *   **Adaptive Smoothing (1Euro Filter)**: Decoupled velocity-based exponential smoothing. Aggressively filters sub-pixel tremors when stationary, but decreases smoothing (lowers lag) during rapid movement.
 *   **Interactive Hand Gestures**:
     *   ✊ **Fist**: Activates a protective electromagnetic shield for 3 seconds (6-second cooldown). The HUD tracks shield duration and cooldown seconds dynamically.

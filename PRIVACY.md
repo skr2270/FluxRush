@@ -1,6 +1,6 @@
 # Privacy Policy for FluxRush Web
 
-**Last Updated:** June 28, 2026
+**Last Updated:** September 26, 2026
 
 At **FluxRush**, we take your privacy seriously. This Privacy Policy describes how we handle browser camera permissions and local data when you play **FluxRush** on the web.
 
